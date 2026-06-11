@@ -10,6 +10,21 @@ int compare_size(const size_t size1, const size_t size2, const char* error_messa
     return 0;
 }
 
+void set_pixel_value(t_bmp8 * img, const int i, const int new_val)
+{
+    if (new_val > 255)
+    {
+        img->colorTable[i] = 255;
+        return;
+    }
+    if (new_val < 0)
+    {
+        img->colorTable[i] = 0;
+        return;
+    }
+    img->colorTable[i] = new_val;
+}
+
 t_bmp8* bmp8_loadImage(const char * filename)
 {
     FILE* file = fopen(filename, "rb"); //mode rb - read binary (for the bmp8 file)
@@ -100,6 +115,87 @@ void bmp8_saveImage(const char * filename, t_bmp8 * img)
         return;
     }
     fclose(file);
+}
 
+void bmp8_free(t_bmp8 * img)
+{
+    if (img == NULL)
+    {
+        printf("Error - image empty");
+        return;
+    }
+    free(img->data);
+    free(img);
+}
+
+void bmp8_printInfo(t_bmp8 * img)
+{
+    printf("Image Info:\n");
+    printf("    Width:%u\n", img->width);
+    printf("    Height:%u\n", img->height);
+    printf("    Color Depth:%hu\n", img->colorDepth); //%hu for unsigned short
+    printf("    Data Size:%u\n", img->dataSize);
+}
+
+void bmp8_negative(t_bmp8 * img)
+{
+    if (img == NULL)
+    {
+        printf("Error - image is empty");
+        return;
+    }
+    // modifciation of the 3 RGB values and skipping the 4th bit (alpha bit)
+    for (int i=0; i<1024; i+=4)
+    {
+        img->colorTable[i] = 255 - img->colorTable[i];
+        img->colorTable[i+1] = 255 - img->colorTable[i+1];
+        img->colorTable[i+2] = 255 - img->colorTable[i+2];
+    }
+}
+
+void bmp8_brightness(t_bmp8 * img, int value)
+{
+    if (img == NULL)
+    {
+        printf("Error - image is empty");
+        return;
+    }
+    // modification of the 3 RGB values and skipping the 4th bit (alpha bit)
+    for (int i=0; i<1024; i+=4)
+    {
+        int new_val = img->colorTable[i] + value;
+        set_pixel_value(img, i, new_val);
+        new_val = img->colorTable[i+1] + value;
+        set_pixel_value(img, i+1, new_val);
+        new_val = img->colorTable[i+2] + value;
+        set_pixel_value(img, i+2, new_val);
+    }
+}
+
+void threshold(t_bmp8 * img, int threshold)
+{
+    if (img == NULL)
+    {
+        printf("Error - image is empty");
+        return;
+    }
+    // modificiation of the 3 RGB values and skipping the 4th bit (alpha bit)
+    for (int i=0; i<1024; i+=4)
+    {
+        // Calculating on all pixels so the function can be usable in contexts other than gray scale
+        int avg_brightness = (img->colorTable[i] + img->colorTable[i+1] + img->colorTable[i+2])/3;
+        if (avg_brightness >= threshold)
+        {
+            img->colorTable[i] = 255;
+            img->colorTable[i+1] = 255;
+            img->colorTable[i+2] = 255;
+        }
+        else
+        {
+            img->colorTable[i] = 0;
+            img->colorTable[i+1] = 0;
+            img->colorTable[i+2] = 0;
+        }
+    }
 }
 
