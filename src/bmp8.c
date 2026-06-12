@@ -1,29 +1,7 @@
 #include "bmp8.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-//Size comparison function used (for example) in verification of successful reading or writing
-int compare_size(const size_t size1, const size_t size2, const char* error_message)
-{
-    if (size1 == size2) return 1;
-    printf("Error - %s\n", error_message);
-    return 0;
-}
-
-void set_pixel_value(t_bmp8 * img, const int i, const int new_val)
-{
-    if (new_val > 255)
-    {
-        img->colorTable[i] = 255;
-        return;
-    }
-    if (new_val < 0)
-    {
-        img->colorTable[i] = 0;
-        return;
-    }
-    img->colorTable[i] = new_val;
-}
+#include "../utils/utils.c"
 
 t_bmp8* bmp8_loadImage(const char * filename)
 {
@@ -144,7 +122,7 @@ void bmp8_negative(t_bmp8 * img)
         printf("Error - image is empty");
         return;
     }
-    // modifciation of the 3 RGB values and skipping the 4th bit (alpha bit)
+    // modification of the 3 RGB values and skipping the 4th bit (alpha bit)
     for (int i=0; i<1024; i+=4)
     {
         img->colorTable[i] = 255 - img->colorTable[i];
@@ -179,7 +157,7 @@ void threshold(t_bmp8 * img, int threshold)
         printf("Error - image is empty");
         return;
     }
-    // modificiation of the 3 RGB values and skipping the 4th bit (alpha bit)
+    //modification of the 3 RGB values and skipping the 4th bit (alpha bit)
     for (int i=0; i<1024; i+=4)
     {
         // Calculating on all pixels so the function can be usable in contexts other than gray scale
@@ -198,4 +176,68 @@ void threshold(t_bmp8 * img, int threshold)
         }
     }
 }
+
+void bmp8_applyFilter(t_bmp8 * img, float ** kernel, int kernelSize) // Add average brightness**
+{
+    int r = (kernelSize-1)/2; // Used to avoid the borders when applying a filter
+    //Temporary stockage to avoid pixels changing and influencing the filter's effect
+    unsigned char* temp_data = malloc(img->dataSize*sizeof(unsigned char));
+    for (int y=r; y<img->height-r; y++)
+    {
+        for (int x=r; x<img->width-r; x++)
+        {
+            float red_sum = 0;
+            float green_sum = 0;
+            float blue_sum = 0;
+            for (int i = r; i>=-r; i--)
+            {
+                for (int j = r; j>=-r; j--)
+                {
+                    //Verified all three colour pixels, to generalize the function and to full proof it
+                    int pixel_index = img->data[(y + i) * img->width + x + j];
+                    int table_position = 4*pixel_index;
+                    red_sum += kernel[r - i][r - j] * img->colorTable[table_position];
+                    green_sum += kernel[r - i][r - j] * img->colorTable[1+table_position];
+                    blue_sum += kernel[r - i][r - j] * img->colorTable[2+table_position];
+                }
+            }
+            //Division by three done as late as possible to avoid rounding errors
+            int total_brightness = (int)((red_sum+green_sum+blue_sum)/3);
+            temp_data[y * img->width + x] = value_limit(total_brightness);
+        }
+    }
+
+    for (int y=0; y<r; y++)//Refilling the borders of temp_data
+    {
+        for (int x=0; x<img->width; x++)
+        {
+            temp_data[y*img->width+x] = img->data[y*img->width+x];
+        }
+    }
+    for (int y=(int)img->height-r; y<img->height; y++)
+    {
+        for (int x=0; x<(int)img->width; x++)
+        {
+            temp_data[y*img->width+x] = img->data[y*img->width+x];
+        }
+    }
+    for (int y=r; y<(int)img->height - r; y++)
+    {
+        for (int x=0; x<r; x++)
+        {
+            temp_data[y*img->width+x] = img->data[y*img->width+x];
+        }
+    }
+    for (int y=r; y<(int)img->height - r; y++)
+    {
+        for (int x=(int)img->width-r; x<img->width; x++)
+        {
+            temp_data[y*img->width+x] = img->data[y*img->width+x];
+        }
+    }
+
+    free(img->data);
+    img->data = temp_data;
+}
+
 
