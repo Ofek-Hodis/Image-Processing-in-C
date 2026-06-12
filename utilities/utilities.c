@@ -1,9 +1,8 @@
 
 #include"utilities.h"
 
-int is_in_8bit_range(int pixel_color, int value){
-    int res = pixel_color + value;
-    if (res > 255) return 255;
-    if (res < 0) return 0;
-    return res;
+float is_in_8bit_range(float pixel_color){
+    if (pixel_color > 255) return 255;
+    if (pixel_color < 0) return 0;
+    return pixel_color;
 }

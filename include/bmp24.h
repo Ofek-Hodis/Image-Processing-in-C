@@ -23,40 +23,40 @@
 #define DEFAULT_DEPTH 0x18 // 24
 
 typedef struct {
-uint16_t type;
-uint32_t size;
-uint16_t reserved1;
-uint16_t reserved2;
-uint32_t offset;
+    uint16_t type;
+    uint32_t size;
+    uint16_t reserved1;
+    uint16_t reserved2;
+    uint32_t offset;
 } t_bmp_header;
 
 typedef struct {
-uint32_t size;
-int32_t width;
-int32_t height;
-uint16_t planes;
-uint16_t bits;
-uint32_t compression;
-uint32_t imagesize;
-int32_t xresolution;
-int32_t yresolution;
-uint32_t ncolors;
-uint32_t importantcolors;
+    uint32_t size;
+    int32_t width;
+    int32_t height;
+    uint16_t planes;
+    uint16_t bits;
+    uint32_t compression;
+    uint32_t imagesize;
+    int32_t xresolution;
+    int32_t yresolution;
+    uint32_t ncolors;
+    uint32_t importantcolors;
 } t_bmp_info;
 
 typedef struct {
-uint8_t red;
-uint8_t green;
-uint8_t blue;
+    uint8_t blue;
+    uint8_t green;
+    uint8_t red;
 } t_pixel;
 
 typedef struct {
-t_bmp_header header;
-t_bmp_info header_info;
-int width;
-int height;
-int colorDepth;
-t_pixel **data;
+    t_bmp_header header;
+    t_bmp_info header_info;
+    int width;
+    int height;
+    int colorDepth;
+    t_pixel **data;
 } t_bmp24;
 
 t_pixel ** bmp24_allocateDataPixels (int width, int height);
@@ -72,9 +72,8 @@ void bmp24_readPixelData (t_bmp24 * image, FILE * file);
 void bmp24_writePixelValue (t_bmp24 * image, int x, int y, FILE * file);
 void bmp24_writePixelData (t_bmp24 * image, FILE * file);
 void bmp24_negative (t_bmp24 * img);
-void invert_bits(t_bmp24 * img, int x, int y);
 void bmp24_grayscale (t_bmp24 * img);
 void bmp24_brightness (t_bmp24 * img, int value);
-t_pixel bmp24_convolution (t_bmp24 * img, int x, int y, float ** kernel, int kernelSize);
+void bmp24_convolution (t_bmp24 * img, float ** kernel, int kernelSize);
 
 #endif //IMAGE_PROCESSING_IN_C_BMP24_H

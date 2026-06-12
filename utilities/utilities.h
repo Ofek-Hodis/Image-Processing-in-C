@@ -1,6 +1,8 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
-int is_in_8bit_range(int pixel_color, int value);
+#include"bmp24.h"
+
+float is_in_8bit_range(float pixel_color);
 
 #endif //UTILITIES_H
