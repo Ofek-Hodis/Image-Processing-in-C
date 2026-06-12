@@ -121,6 +121,7 @@ void bmp24_writePixelData (t_bmp24 * image, FILE * file){
         }
     }
 }
+
 void bmp24_saveImage (t_bmp24 * image, const char * filename){
     FILE * file = fopen(filename, "wb");
     if (file == NULL){
@@ -134,5 +135,48 @@ void bmp24_saveImage (t_bmp24 * image, const char * filename){
     bmp24_writePixelData(image, file);
 
     fclose(file);
+}
+
+void invert_bits(t_bmp24 * img, int x, int y){
+    img->data[y][x].blue = abs(img->data[y][x].blue - 255);
+    img->data[y][x].green = abs(img->data[y][x].green - 255);
+    img->data[y][x].red = abs(img->data[y][x].red - 255);
+}
+
+void bmp24_negative (t_bmp24 * img){
+    for(int y = 0; y < img->height; y++){
+        for(int x = 0; x < img->width; x++){
+            invert_bits(img, x, y);
+        }
+    }
+}
+
+void bmp24_average_color(t_bmp24 * img, int x, int y){
+    int average_color = (img->data[y][x].blue + img->data[y][x].green + img->data[y][x].red)/3;
+    img->data[y][x].blue = average_color;
+    img->data[y][x].green = average_color;
+    img->data[y][x].red = average_color;
+}
+
+void bmp24_grayscale (t_bmp24 * img){
+    for(int y = 0; y < img->height; y++){
+        for(int x = 0; x < img->width; x++){
+            bmp24_average_color(img, x, y);
+        }
+    }
+}
+
+void bmp24_brightness_pixels(t_bmp24 * img, int x, int y, int value){
+    img->data[y][x].blue = is_in_8bit_range(img->data[y][x].blue, value);
+    img->data[y][x].green = is_in_8bit_range(img->data[y][x].green, value);
+    img->data[y][x].red = is_in_8bit_range(img->data[y][x].red, value);
+}
+
+void bmp24_brightness (t_bmp24 * img, int value){
+    for(int y = 0; y < img->height; y++){
+        for(int x = 0; x < img->width; x++){
+            bmp24_brightness_pixels(img, x, y, value);
+        }
+    }
 }
 
