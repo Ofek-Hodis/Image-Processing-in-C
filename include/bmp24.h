@@ -66,6 +66,7 @@ t_bmp24 * bmp24_loadImage (const char * filename);
 void bmp24_saveImage (t_bmp24 * img, const char * filename);
 void file_rawRead (uint32_t position, void * buffer, uint32_t size, size_t n, FILE * file);
 void file_rawWrite (uint32_t position, void * buffer, uint32_t size, size_t n, FILE * file);
+void bmp24_fillPixelMatrix(t_bmp24 * image, FILE * file);
 void bmp24_readPixelValue (t_bmp24 * image, int x, int y, FILE * file);
 void bmp24_readPixelData (t_bmp24 * image, FILE * file);
 void bmp24_writePixelValue (t_bmp24 * image, int x, int y, FILE * file);

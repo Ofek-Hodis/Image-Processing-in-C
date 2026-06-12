@@ -68,3 +68,27 @@ void file_rawWrite (uint32_t position, void * buffer, uint32_t size, size_t n, F
     fseek(file, position, SEEK_SET);
     fwrite(buffer, size, n, file);
 }
+
+void bmp24_readPixelValue (t_bmp24 * image, int x, int y, FILE * file){
+    
+}
+
+void bmp24_fillPixelMatrix(t_bmp24 * img, FILE * filename){
+
+}
+
+
+t_bmp24 * bmp24_loadImage (const char * filename){
+    t_bmp_header img_header;
+    t_bmp_info img_info;
+
+    file_rawRead(BITMAP_MAGIC, &img_header, sizeof(t_bmp_header), 1, filename);
+    file_rawRead(HEADER_SIZE, &img_info, sizeof(t_bmp_info), 1, filename);
+
+    t_bmp24 * img = bmp24_allocate(img_info.width, img_info.height, img_info.bits);
+
+    bmp24_fillPixelMatrix(img, filename);
+
+
+
+}
