@@ -14,7 +14,7 @@ t_pixel ** bmp24_allocateDataPixels (int width, int height){
 
         if (pixel_mat[i] == NULL){
             printf("unexpected malloc error in bmp24_allocateDataPixels\n");
-            bmp24_freeDataPixels(pixel_mat, i - 1);
+            bmp24_freeDataPixels(pixel_mat, i);
             return NULL;
         }
     }
@@ -42,6 +42,7 @@ t_bmp24 * bmp24_allocate (int width, int height, int colorDepth){
     if (bmp24 == NULL){
         printf("unexpected malloc error in bmp24_allocate\n");
         bmp24_freeDataPixels(pixel_mat, height);
+        return NULL;
     }
     
     bmp24->data = pixel_mat;
@@ -54,7 +55,6 @@ t_bmp24 * bmp24_allocate (int width, int height, int colorDepth){
 }
 
 void bmp24_free (t_bmp24 * img){
-
     bmp24_freeDataPixels(img->data, img->height);
     free(img);
 }
@@ -69,26 +69,70 @@ void file_rawWrite (uint32_t position, void * buffer, uint32_t size, size_t n, F
     fwrite(buffer, size, n, file);
 }
 
-void bmp24_readPixelValue (t_bmp24 * image, int x, int y, FILE * file){
-    
+void  bmp24_readPixelValue (t_bmp24 * image, int x, int y, FILE * file){
+    t_pixel pixel;
+    uint32_t position = image->header.offset + (x * 3) + (image->width * 3) * (image->height - y - 1);
+    file_rawRead(position, &pixel, sizeof(t_pixel), 1, file);
+    image->data[y][x] = pixel;
 }
 
-void bmp24_fillPixelMatrix(t_bmp24 * img, FILE * filename){
-
+void bmp24_readPixelData(t_bmp24 * image, FILE * file){
+    for(int y = 0; y < image->height; y++){
+        for(int x = 0; x < image->width; x++){
+            bmp24_readPixelValue(image, x, y, file);
+        }
+    }
 }
-
 
 t_bmp24 * bmp24_loadImage (const char * filename){
+    FILE * img_file = fopen(filename, "rb");
+    if (img_file == NULL){
+        printf("file cannot be oppen\n");
+        return NULL;
+    }
+
     t_bmp_header img_header;
     t_bmp_info img_info;
 
-    file_rawRead(BITMAP_MAGIC, &img_header, sizeof(t_bmp_header), 1, filename);
-    file_rawRead(HEADER_SIZE, &img_info, sizeof(t_bmp_info), 1, filename);
+    file_rawRead(BITMAP_MAGIC, &img_header, sizeof(t_bmp_header), 1, img_file);
+    file_rawRead(HEADER_SIZE, &img_info, sizeof(t_bmp_info), 1, img_file);
 
     t_bmp24 * img = bmp24_allocate(img_info.width, img_info.height, img_info.bits);
+    img->header = img_header;
+    img->header_info = img_info;
 
-    bmp24_fillPixelMatrix(img, filename);
+    bmp24_readPixelData(img, img_file);
 
+    fclose(img_file);
 
-
+    return img;
 }
+
+void bmp24_writePixelValue (t_bmp24 * image, int x, int y, FILE * file){
+    t_pixel pixel = image->data[y][x];
+    uint32_t position = image->header.offset + (x * 3) + (image->width * 3) * (image->height - y - 1);
+    file_rawWrite(position, &pixel, sizeof(t_pixel), 1, file);
+}
+
+void bmp24_writePixelData (t_bmp24 * image, FILE * file){
+    for(int y = 0; y < image->height; y++){
+        for(int x = 0; x < image->width; x++){
+            bmp24_WritePixelValue(image, x, y, file);
+        }
+    }
+}
+void bmp24_saveImage (t_bmp24 * image, const char * filename){
+    FILE * file = fopen(filename, "wb");
+    if (file == NULL){
+        printf("file cannot be oppen\n");
+        return;
+    }
+
+    file_rawWrite(BITMAP_MAGIC, &image->header, sizeof(t_bmp_header), 1, file);
+    file_rawWrite(HEADER_SIZE, &image->header_info, sizeof(t_bmp_info), 1, file);
+
+    bmp24_writePixelData(image, file);
+
+    fclose(file);
+}
+
