@@ -22,7 +22,7 @@
 // Constantes pour les valeurs de profondeur de couleur
 #define DEFAULT_DEPTH 0x18 // 24
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     uint16_t type;
     uint32_t size;
     uint16_t reserved1;
@@ -67,13 +67,15 @@ t_bmp24 * bmp24_loadImage (const char * filename);
 void bmp24_saveImage (t_bmp24 * img, const char * filename);
 void file_rawRead (uint32_t position, void * buffer, uint32_t size, size_t n, FILE * file);
 void file_rawWrite (uint32_t position, void * buffer, uint32_t size, size_t n, FILE * file);
-void bmp24_readPixelValue (t_bmp24 * image, int x, int y, FILE * file);
+void bmp24_readPixelValue (t_bmp24 * image, int y, FILE * file);
 void bmp24_readPixelData (t_bmp24 * image, FILE * file);
-void bmp24_writePixelValue (t_bmp24 * image, int x, int y, FILE * file);
+void bmp24_writePixelValue (t_bmp24 * image, int y, FILE * file);
 void bmp24_writePixelData (t_bmp24 * image, FILE * file);
 void bmp24_negative (t_bmp24 * img);
 void bmp24_grayscale (t_bmp24 * img);
 void bmp24_brightness (t_bmp24 * img, int value);
 void bmp24_convolution (t_bmp24 * img, float ** kernel, int kernelSize);
+void apply_convolution(t_bmp24 * img, float ** kernel, int kernelSize, t_pixel ** new_matrix, int border);
+void fill_border(t_bmp24 * img, float ** kernel, int kernelSize, t_pixel ** new_matrix, int border);
 
 #endif //IMAGE_PROCESSING_IN_C_BMP24_H

@@ -3,8 +3,8 @@
 
 t_bmp24 * bmp24_loadImage (const char * filename){
 
-    FILE * img_file = fopen(filename, "rb");
-    if (img_file == NULL){
+    FILE * file = fopen(filename, "rb");
+    if (file == NULL){
         printf("file cannot be oppen\n");
         return NULL;
     }
@@ -12,18 +12,19 @@ t_bmp24 * bmp24_loadImage (const char * filename){
     t_bmp_header img_header;
     t_bmp_info img_info;
 
-    file_rawRead(BITMAP_MAGIC, &img_header, sizeof(t_bmp_header), 1, img_file);
-    file_rawRead(HEADER_SIZE, &img_info, sizeof(t_bmp_info), 1, img_file);
+    file_rawRead(BITMAP_MAGIC, &img_header, sizeof(t_bmp_header), 1, file);
 
-    t_bmp24 * img = bmp24_allocate(img_info.width, img_info.height, img_info.bits);
-    img->header = img_header;
-    img->header_info = img_info;
+    file_rawRead(HEADER_SIZE, &img_info, sizeof(t_bmp_info), 1, file);
 
-    bmp24_readPixelData(img, img_file);
+    t_bmp24 * image = bmp24_allocate(img_info.width, img_info.height, img_info.bits);
+    image->header = img_header;
+    image->header_info = img_info;
 
-    fclose(img_file);
+    bmp24_readPixelData(image, file);
 
-    return img;
+    fclose(file);
+
+    return image;
 }
 
 void bmp24_saveImage (t_bmp24 * image, const char * filename){
@@ -31,6 +32,7 @@ void bmp24_saveImage (t_bmp24 * image, const char * filename){
     FILE * file = fopen(filename, "wb");
     if (file == NULL){
         printf("file cannot be oppen\n");
+        fclose(file);
         return;
     }
 
@@ -38,6 +40,7 @@ void bmp24_saveImage (t_bmp24 * image, const char * filename){
     file_rawWrite(HEADER_SIZE, &image->header_info, sizeof(t_bmp_info), 1, file);
 
     bmp24_writePixelData(image, file);
+
 
     fclose(file);
 }
@@ -48,6 +51,8 @@ void bmp24_convolution (t_bmp24 * img, float ** kernel, int kernelSize){
         printf("file cannot be oppen\n");
         return;
     }
+
+    printf("%f\n", kernel[0][0]);
 
     int border = (kernelSize - 1)/2;
 
@@ -175,39 +180,33 @@ void file_rawRead (uint32_t position, void * buffer, uint32_t size, size_t n, FI
     fread(buffer, size, n, file);
 }
 
+void  bmp24_readPixelValue (t_bmp24 * image, int y, FILE * file){
+    uint32_t position = image->header.offset + (image->width * 3) * (image->height - y - 1);
+    file_rawRead(position, image->data[y], sizeof(t_pixel), image->width, file);
+}
+
+void bmp24_readPixelData(t_bmp24 * image, FILE * file){
+    for(int y = 0; y < image->height; y++){
+        bmp24_readPixelValue(image, y, file);
+    }
+}
+
 void file_rawWrite (uint32_t position, void * buffer, uint32_t size, size_t n, FILE * file) {
     fseek(file, position, SEEK_SET);
     fwrite(buffer, size, n, file);
 }
 
-void  bmp24_readPixelValue (t_bmp24 * image, int x, int y, FILE * file){
-    t_pixel pixel;
-    uint32_t position = image->header.offset + (x * 3) + (image->width * 3) * (image->height - y - 1);
-    file_rawRead(position, &pixel, sizeof(t_pixel), 1, file);
-    image->data[y][x] = pixel;
-}
-
-void bmp24_readPixelData(t_bmp24 * image, FILE * file){
-    for(int y = 0; y < image->height; y++){
-        for(int x = 0; x < image->width; x++){
-            bmp24_readPixelValue(image, x, y, file);
-        }
-    }
-}
-
-void bmp24_writePixelValue (t_bmp24 * image, int x, int y, FILE * file){
-    t_pixel pixel = image->data[y][x];
-    uint32_t position = image->header.offset + (x * 3) + (image->width * 3) * (image->height - y - 1);
-    file_rawWrite(position, &pixel, sizeof(t_pixel), 1, file);
+void bmp24_writePixelValue (t_bmp24 * image, int y, FILE * file){
+    uint32_t position = image->header.offset + (image->width * 3) * (image->height - y - 1);
+    file_rawWrite(position, image->data[y], sizeof(t_pixel), image->width, file);
 }
 
 void bmp24_writePixelData (t_bmp24 * image, FILE * file){
     for(int y = 0; y < image->height; y++){
-        for(int x = 0; x < image->width; x++){
-            bmp24_WritePixelValue(image, x, y, file);
-        }
+        bmp24_writePixelValue(image, y, file);
     }
 }
+
 
 void apply_convolution(t_bmp24 * img, float ** kernel, int kernelSize, t_pixel ** new_matrix, int border){
     for (int y = border; y < img->height - border; y++){
