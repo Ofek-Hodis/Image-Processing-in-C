@@ -37,7 +37,10 @@ t_bmp8* bmp8_loadImage(const char * filename)
     img->colorDepth = *(unsigned short*)&(img->header[28]);
     img->dataSize = *(unsigned int *)&(img->header[34]);
 
-    if (img->colorDepth != 8 || img->header[0] == 'B' || img->header[1] == 'M') // Verifying image type
+    if (img->dataSize == 0) // DataSize might be automatically set to 0
+        img->dataSize = img->width * img->height; //Calculation fit for a grayscale image
+
+    if (img->colorDepth != 8 || img->header[0] != 'B' || img->header[1] != 'M') // Verifying image type
     {
         printf("Error - wrong file type (expected bmp_8)");
         free(img);
@@ -150,7 +153,7 @@ void bmp8_brightness(t_bmp8 * img, int value)
     }
 }
 
-void threshold(t_bmp8 * img, int threshold)
+void bmp8_threshold(t_bmp8 * img, int threshold)
 {
     if (img == NULL)
     {
