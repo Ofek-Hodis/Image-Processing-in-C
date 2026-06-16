@@ -1,7 +1,7 @@
 #include "bmp8.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "../utils/utils.c"
+#include "utilities.h"
 
 t_bmp8* bmp8_loadImage(const char * filename)
 {
@@ -206,7 +206,7 @@ void bmp8_applyFilter(t_bmp8 * img, float ** kernel, int kernelSize) // Add aver
             }
             //Division by three done as late as possible to avoid rounding errors
             int total_brightness = (int)((red_sum+green_sum+blue_sum)/3);
-            temp_data[y * img->width + x] = value_limit(total_brightness);
+            temp_data[y * img->width + x] = is_in_8bit_range(total_brightness);
         }
     }
 
