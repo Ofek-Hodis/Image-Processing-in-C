@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include"utilities.h"
+#include"../utilities/utilities.h"
 
 // Constantes pour les offsets des champs de l'en-tête BMP
 #define BITMAP_MAGIC 0x00 // offset 0
