@@ -52,8 +52,6 @@ void bmp24_convolution (t_bmp24 * img, float ** kernel, int kernelSize){
         return;
     }
 
-    printf("%f\n", kernel[0][0]); // What is this line for >
-
     int border = (kernelSize - 1)/2;
 
     t_pixel ** new_matrix = bmp24_allocateDataPixels(img->width, img->height);
