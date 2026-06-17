@@ -1,5 +1,6 @@
 #include"utilities.h"
 
+
 float is_in_8bit_range(float pixel_color){
     if (pixel_color > 255) return 255;
     if (pixel_color < 0) return 0;
@@ -26,12 +27,6 @@ int value_limit(const int new_val)
     return new_val;
 }
 
-void set_pixel_value(t_bmp8 * img, const int i, const int new_val)
-{
-    int final_value = value_limit(new_val);
-    img->colorTable[i] = final_value;
-}
-
 int find_colorDepth(const char* filename)
 {
     FILE* file = fopen(filename, "rb"); //mode rb - read binary
@@ -42,4 +37,7 @@ int find_colorDepth(const char* filename)
     if (colorDepth == 8) return 8;
     if (colorDepth == 24) return 24;
     return 0;
+void set_pixel_value(t_bmp8 * img, const int i, const int new_val){
+    int final_value = is_in_8bit_range(new_val);
+    img->colorTable[i] = final_value;
 }
