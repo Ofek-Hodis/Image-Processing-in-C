@@ -10,6 +10,7 @@ add_executable(image_processing
         src/bmp8.c
         src/bmp24.c
         src/equalization.c
+        utilities/filter_functions.c
 )
 
 target_link_libraries(image_processing m)

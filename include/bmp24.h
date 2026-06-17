@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include"utilities.h"
+#include"../utilities/utilities.h"
 
 // Constantes pour les offsets des champs de l'en-tête BMP
 #define BITMAP_MAGIC 0x00 // offset 0
@@ -77,5 +77,6 @@ void bmp24_brightness (t_bmp24 * img, int value);
 void bmp24_convolution (t_bmp24 * img, float ** kernel, int kernelSize);
 void apply_convolution(t_bmp24 * img, float ** kernel, int kernelSize, t_pixel ** new_matrix, int border);
 void fill_border(t_bmp24 * img, float ** kernel, int kernelSize, t_pixel ** new_matrix, int border);
+void bmp24_printInfo(t_bmp24 * img);
 
 #endif //IMAGE_PROCESSING_IN_C_BMP24_H
