@@ -52,7 +52,7 @@ void bmp24_convolution (t_bmp24 * img, float ** kernel, int kernelSize){
         return;
     }
 
-    printf("%f\n", kernel[0][0]);
+    printf("%f\n", kernel[0][0]); // What is this line for >
 
     int border = (kernelSize - 1)/2;
 
@@ -85,7 +85,7 @@ void bmp24_negative (t_bmp24 * img){
 
 void bmp24_grayscale (t_bmp24 * img){
     if (img == NULL){
-        printf("file cannot be oppen\n");
+        printf("file cannot be opened\n");
         return;
     }
 
@@ -252,5 +252,13 @@ void fill_border(t_bmp24 * img, float ** kernel, int kernelSize, t_pixel ** new_
             new_matrix[y][x] = img->data[y][x];
         }
     }
+}
 
+void bmp24_printInfo(t_bmp24 * img)
+{
+    printf("Image Info:\n");
+    printf("    Type - bmp24\n");
+    printf("    Width:%u\n", img->width);
+    printf("    Height:%u\n", img->height);
+    printf("    Color Depth:%hu\n", img->colorDepth); //%hu for unsigned short
 }

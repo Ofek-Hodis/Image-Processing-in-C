@@ -112,6 +112,7 @@ void bmp8_free(t_bmp8 * img)
 void bmp8_printInfo(t_bmp8 * img)
 {
     printf("Image Info:\n");
+    printf("    Type - bmp8\n");
     printf("    Width:%u\n", img->width);
     printf("    Height:%u\n", img->height);
     printf("    Color Depth:%hu\n", img->colorDepth); //%hu for unsigned short
