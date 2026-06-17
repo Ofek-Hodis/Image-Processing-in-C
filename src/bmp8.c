@@ -243,5 +243,5 @@ void bmp8_applyFilter(t_bmp8 * img, float ** kernel, int kernelSize) // Add aver
     free(img->data);
     img->data = temp_data;
 }
-}
+
 
