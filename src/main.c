@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "equalization.h"
 #include "../utilities/filter_functions.h"
 
 int main()
@@ -16,8 +18,9 @@ int main()
         printf("1: Open an image\n");
         printf("2: Save an image\n");
         printf("3: Apply a filter\n");
-        printf("4: Display image information\n");
-        printf("5: Quit the program\n");
+        printf("4: Equalization\n");
+        printf("5: Display image information\n");
+        printf("6: Quit the program\n");
         int scan_result = scanf("%d", &choice);
         int c;
         while ((c = getchar()) != '\n' && c != EOF){} // Emptying the buffer to avoid infinite loop
@@ -299,6 +302,23 @@ int main()
             {
                 if (img_depth == 8)
                 {
+                    bmp8_equalize(img_8);
+                    printf("Photo equalized\n");
+                    break;
+                }
+                if (img_depth == 24)
+                {
+                    bmp24_equalize(img_24);
+                    printf("Photo equalized\n");
+                    break;
+                }
+                printf("Color depth not accepted (expected 8 or 24) - verify file type\n");
+                break;
+            }
+        case 5 :
+            {
+                if (img_depth == 8)
+                {
                     bmp8_printInfo(img_8);
                     break;
                 }
@@ -308,7 +328,7 @@ int main()
                 }
                 break;
             }
-        case 5 :
+        case 6 :
             {
                 printf("Quitting program\n");
                 if (img_8 != NULL) bmp8_free(img_8);
