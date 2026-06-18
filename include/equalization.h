@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "utilities.h"
+#include "../utilities/utilities.h"
 #include "bmp8.h"
 #include "bmp24.h"
 
