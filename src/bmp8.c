@@ -1,7 +1,7 @@
 #include "bmp8.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "../utilities/utilities.c"
+#include "../utilities/utilities.h"
 
 t_bmp8* bmp8_loadImage(const char * filename)
 {
